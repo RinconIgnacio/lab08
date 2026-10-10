@@ -82,13 +82,21 @@ int main() {
             roster.back().print();
 
         } else if (choice == 3) {
-            // TODO (Checkpoint 1): call save_roster() with roster and roster_path.
-            // Print "Roster saved." on success, or a clear error message on failure.
+         if (save_roster(roster, roster_path)) {
+    std::cout << "Roster saved.\n";
+    }   
+    else {
+    std::cout << "Error: could not save roster.\n";
+    }
 
         } else if (choice == 4) {
-            // TODO (Checkpoints 2 and 3): call load_roster() with roster_path.
-            // On success, print how many mechs are in the roster and how many
-            // lines were skipped. On failure, print a clear error message.
+        int skipped_lines = 0;
+        if (load_roster(roster_path, roster, skipped_lines)) {
+        std::cout << "Loaded " << roster.size() << " mechs. Skipped " << skipped_lines << " lines.\n";
+        }   
+        else {
+        std::cout << "Error: could not load roster.\n";
+        }
 
         } else if (choice == 5) {
             if (roster.empty()) {
@@ -108,12 +116,20 @@ int main() {
             DuelResult result = simulate_duel(fighter, challenger);
             std::cout << result.summary << '\n';
 
-            // TODO (Checkpoint 4a): append a line to battle_log_path made of
-            // timestamp(), a space, and result.summary.
+              if (!append_line(battle_log_path, timestamp() + " " + result.summary)) {
+                std::cout << "Error: could not write battle log.\n";
+                }   
 
-            // TODO (Checkpoint 4b): if the fighter was destroyed, append a line to
-            // graveyard_path saying who was destroyed and by whom, then remove the
-            // fighter from the roster. (Do not use fighter after removing it.)
+              if (fighter.is_destroyed()) {
+                std::string graveyard_entry = timestamp() + " " +
+                fighter.name() + " was destroyed by " + result.opponent_name;
+
+             if (!append_line(graveyard_path, graveyard_entry)) {
+            std::cout << "Error: could not write graveyard.\n";
+            }
+
+            roster.erase(roster.begin() + (index - 1));
+            }
 
         } else {
             // TODO (Stretch): ask whether to save the roster before quitting.
